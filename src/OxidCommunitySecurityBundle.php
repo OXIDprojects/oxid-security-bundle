@@ -13,7 +13,7 @@ use Sioweb\Oxid\Kernel\Bundle\BundleConfigurationInterface;
 use Symfony\Component\Config\FileLocator;
 use Sioweb\Oxid\Kernel\DependencyInjection\Loader\YamlFileLoader;
 
-class OxidCommunitySecurityBundle extends BaseBundle implements BundleRoutesInterface, BundleConfigurationInterface
+class OxidCommunitySecurityBundle extends BaseBundle
 {
     /**
      * {@inheritdoc}
