@@ -1,0 +1,8 @@
+services:
+    security.firewall:
+        class: OxidCommunity\SecurityBundle\Security\Component\Firewall
+        arguments:
+            - "@security.firewall.map"
+            - "@event_dispatcher"
+        tags:
+            - { name: kernel.event_subscriber }

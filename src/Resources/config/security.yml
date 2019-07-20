@@ -1,0 +1,24 @@
+security:
+    providers:
+        chain_provider:
+            chain:
+                providers: [webservice, http]
+        webservice:
+            id: oxidcommunity.securitybundle.security.webservice.provider
+        http:
+            id: oxidcommunity.securitybundle.security.http.provider
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        main:
+            request_matcher: oxidcommunity.securitybundle.request_matcher
+            anonymous: true
+            logout: true
+            guard:
+                authenticators:
+                    - oxidcommunity.securitybundle.security.webservice.authenticator
+                    - oxidcommunity.securitybundle.security.http.authenticator
+                entry_point: oxidcommunity.securitybundle.security.webservice.authenticator
