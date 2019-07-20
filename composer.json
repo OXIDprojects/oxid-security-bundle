@@ -1,0 +1,6 @@
+{
+    "name": "oxidcomm-community/security-bundle",
+    "type": "oxideshop-module",
+    "license": "GPL-3.0-only",
+    "require": {}
+}
