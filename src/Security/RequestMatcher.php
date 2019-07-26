@@ -4,13 +4,29 @@ namespace OxidCommunity\SecurityBundle\Security;
 
 use Symfony\Component\HttpFoundation\RequestMatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\RouteCollection;
 
-class ApiFirewallMatcher implements RequestMatcherInterface
+class RequestMatcher implements RequestMatcherInterface
 {
-    public function matches(Request $request){
+
+    /**
+     * @var request_stack
+     */
+    private $routeLoader;
+
+    public function __construct($routeLoader)
+    {
+        $this->routeLoader = $routeLoader;
+    }
+
+    public function matches(Request $request)
+    {
         $url = $request->getPathInfo();
-        die("<pre>" . var_dump($request, true));
-        $isMatch = strpos($url, "/api") === 0 && $request->get("isOnlineApp", false) === false;
-        return $isMatch;
+
+        $router = $this->routeLoader;
+        $route = $router->match($request->getPathInfo());
+        $route = $this->routeLoader->getRouteCollection()->get($route['_route']);
+
+        return !empty($route->getOptions()['auth']);
     }
 }

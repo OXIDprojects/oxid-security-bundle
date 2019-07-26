@@ -13,7 +13,7 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
-        main:
+        secure:
             request_matcher: oxidcommunity.securitybundle.request_matcher
             anonymous: true
             logout: true

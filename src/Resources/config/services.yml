@@ -18,3 +18,5 @@ services:
         
     oxidcommunity.securitybundle.request_matcher:
         class: OxidCommunity\SecurityBundle\Security\RequestMatcher
+        arguments:
+            - "@router"

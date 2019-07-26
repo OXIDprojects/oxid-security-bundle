@@ -68,7 +68,6 @@ class Authenticator extends AbstractGuardAuthenticator
             }
         }
 
-        die("<pre>" . print_r('ASDASD', true));
         return ['user' => $request->getUser(), 'password' => $request->getPassword()];
     }
 
