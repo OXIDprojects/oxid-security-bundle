@@ -1,5 +1,5 @@
 {
-    "name": "oxid-community/oxid-security-bundle",
+    "name": "oxid-community/symfony-security-bundle",
     "type": "oxideshop-module",
     "license": "GPL-3.0-only",
     "require": {
