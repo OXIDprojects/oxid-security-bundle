@@ -1,20 +1,21 @@
 {
-    "name": "oxid-community/symfony-security-bundle",
-    "type": "oxideshop-module",
-    "license": "GPL-3.0-only",
-    "require": {
-        "php": ">=7.0",
-        "symfony/security-bundle": "~3.1.0"
-    },
-    "extra": {
-      "oxid-kernel-plugin": "OxidCommunity\\SecurityBundle\\OxidCommunitySecurityBundle"
-    },
-    "autoload": {
-      "psr-4": {
-        "OxidCommunity\\SecurityBundle\\": "src/"
-      },
-      "exclude-from-classmap": [
-          "src/Resources/oxid"
-      ]
+  "name": "oxid-community/symfony-security-bundle",
+  "type": "oxideshop-module",
+  "license": "GPL-3.0-only",
+  "require": {
+    "php": ">=7.0",
+    "symfony/security-bundle": "~3.1.0"
+  },
+  "extra": {
+    "oxid-kernel-plugin": {
+      "symfony/security-bundle": "Symfony\\Bundle\\SecurityBundle\\SecurityBundle",
+      "oxid-community/symfony-security-bundle": "OxidCommunity\\SecurityBundle\\OxidCommunitySecurityBundle"
     }
+  },
+  "autoload": {
+    "psr-4": {
+      "OxidCommunity\\SecurityBundle\\": "src/"
+    },
+    "exclude-from-classmap": ["src/Resources/oxid"]
+  }
 }
