@@ -1,6 +1,6 @@
 <?php
 
-namespace OxidCommunity\SecurityBundle\Security\Http;
+namespace OxidCommunity\SecurityBundle\Security\Jwt;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -10,18 +10,42 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
-use Symfony\Component\Dotenv\Dotenv;
-use Symfony\Component\HttpFoundation\IpUtils;
-
 
 class Authenticator extends AbstractGuardAuthenticator
 {
-    private $container;
-
-    public function __construct($container)
+    private function getAuthorizationHeader()
     {
-        $this->container = $container;
+        $headers = null;
+        if (isset($_SERVER['Authorization'])) {
+            $headers = trim($_SERVER["Authorization"]);
+        } elseif (isset($_SERVER['HTTP_AUTHORIZATION'])) {
+            $headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
+        } elseif (function_exists('apache_request_headers')) {
+            $requestHeaders = apache_request_headers();
+            // Server-side fix for bug in old Android versions (a nice side-effect of this fix means we don't care about capitalization for Authorization)
+            $requestHeaders = array_combine(array_map('ucwords', array_keys($requestHeaders)), array_values($requestHeaders));
+            if (isset($requestHeaders['Authorization'])) {
+                $headers = trim($requestHeaders['Authorization']);
+            }
+        }
+        return $headers;
     }
+
+    /**
+     * Get access token from header
+    */
+    private function getBearerToken()
+    {
+        $headers = $this->getAuthorizationHeader();
+        // HEADER: Get the access token from the header
+        if (!empty($headers)) {
+            if (preg_match('/Bearer\s(\S+)/', $headers, $matches)) {
+                return $matches[1];
+            }
+        }
+        return null;
+    }
+
     /**
      * Called on every request to decide if this authenticator should be
      * used for the request. Returning false will cause this authenticator
@@ -29,7 +53,7 @@ class Authenticator extends AbstractGuardAuthenticator
      */
     public function supports(Request $request)
     {
-        return $request->headers->has('X-AUTH-TOKEN');
+        return $this->getBearerToken();
     }
 
     /**
@@ -38,60 +62,36 @@ class Authenticator extends AbstractGuardAuthenticator
      */
     public function getCredentials(Request $request)
     {
-        if($this->supports($request) || $request->attributes->has('jwtlogin')) {
+        if(!$this->supports($request)) {
             return null;
         }
 
-        if (
-            $request->server->has('HTTP_CLIENT_IP')
-            // || $request->server->has('HTTP_X_FORWARDED_FOR')
-            || !IpUtils::checkIp($request->getClientIp(), $this->container->getParameter('whitelisted_ip_addresses')) 
-            || PHP_SAPI === 'cli-server'
-        ) {
-            try {
-                $this->getUser(
-                    ['user' => $request->getUser(), 'password' => $request->getPassword()],
-                    new UserProvider()
-                );
-            } catch(\Exception $e) {
-                header('WWW-Authenticate: Basic realm="Oxid API Login"');
-                header('HTTP/1.0 401 Unauthorized');
-                die(sprintf('You are not allowed to access this file. Check %s for more information.', basename(__FILE__)));
-            }
-
-            if (
-                null === $request->getUser() || null === $request->getPassword()
-            ) {
-                header('WWW-Authenticate: Basic realm="Oxid API Login"');
-                header('HTTP/1.0 401 Unauthorized');
-                die(sprintf('You are not allowed to access this file. Check %s for more information.', basename(__FILE__)));
-            }
-        }
-
-        return ['user' => $request->getUser(), 'password' => $request->getPassword()];
+        return [
+            'jwt' => $this->getBearerToken(),
+        ];
     }
 
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
-        if (empty($credentials['user'])) {
+        $apiKey = $credentials['jwt'];
+
+        if (null === $apiKey) {
             return;
         }
-        
-        return $userProvider->loadUserByUsername($credentials);
+
+        // if a User object, checkCredentials() is called
+        return $userProvider->loadUserByUsername($apiKey);
     }
 
     public function checkCredentials($credentials, UserInterface $user)
     {
-        // check credentials - e.g. make sure the password is valid
-        // no credential check is needed in this case
-
-        // return true to cause authentication success
         return true;
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
         // on success, let the request continue
+        $request->attributes->add(['jwtlogin' => true]);
         return null;
     }
 
@@ -99,6 +99,9 @@ class Authenticator extends AbstractGuardAuthenticator
     {
         $data = [
             'message' => strtr($exception->getMessageKey(), $exception->getMessageData())
+
+            // or to translate this message
+            // $this->translator->trans($exception->getMessageKey(), $exception->getMessageData())
         ];
 
         return new JsonResponse($data, Response::HTTP_FORBIDDEN);
@@ -109,7 +112,9 @@ class Authenticator extends AbstractGuardAuthenticator
      */
     public function start(Request $request, AuthenticationException $authException = null)
     {
+        die("<pre>" . __METHOD__ .":\n" . print_r('ASD', true));
         $data = [
+            // you might translate this message
             'message' => 'Authentication Required'
         ];
 
@@ -118,6 +123,7 @@ class Authenticator extends AbstractGuardAuthenticator
 
     public function supportsRememberMe()
     {
+        die("<pre>" . __METHOD__ .":\n" . print_r('ASD', true));
         return false;
     }
 }

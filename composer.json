@@ -4,6 +4,7 @@
   "license": "GPL-3.0-only",
   "require": {
     "php": ">=7.0",
+    "lcobucci/jwt": "^3.3",
     "symfony/security-bundle": "~3.1.0"
   },
   "extra": {

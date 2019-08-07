@@ -2,7 +2,9 @@ security:
     providers:
         chain_provider:
             chain:
-                providers: [webservice, http]
+                providers: [jwt, webservice, http]
+        jwt:
+            id: oxidcommunity.securitybundle.security.jwt.provider
         webservice:
             id: oxidcommunity.securitybundle.security.webservice.provider
         http:
@@ -19,6 +21,7 @@ security:
             logout: true
             guard:
                 authenticators:
+                    - oxidcommunity.securitybundle.security.jwt.authenticator
                     - oxidcommunity.securitybundle.security.webservice.authenticator
                     - oxidcommunity.securitybundle.security.http.authenticator
-                entry_point: oxidcommunity.securitybundle.security.webservice.authenticator
+                entry_point: oxidcommunity.securitybundle.security.jwt.authenticator

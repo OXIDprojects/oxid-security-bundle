@@ -1,4 +1,13 @@
 services:
+    oxidcommunity.securitybundle.security.jwt.authenticator:
+        class: OxidCommunity\SecurityBundle\Security\Jwt\Authenticator
+        public: true
+
+    oxidcommunity.securitybundle.security.jwt.provider:
+        class: OxidCommunity\SecurityBundle\Security\Jwt\UserProvider
+
+
+   
     oxidcommunity.securitybundle.security.webservice.authenticator:
         class: OxidCommunity\SecurityBundle\Security\Token\Authenticator
         public: true
